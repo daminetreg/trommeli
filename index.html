@@ -1,19 +1,119 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Hello World!</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
+<html lang="en" >
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script>
-      // You can also require other files to run in this process
-      require('./renderer.js')
-    </script>
-  </body>
+  <!-- electron fix for jQuery --!>
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+    <!-- xterm start -->
+    <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css" />
+    <script src="node_modules/xterm/dist/xterm.js"></script>
+    <script src="node_modules/xterm/dist/addons/fit/fit.js"></script>
+
+    <!-- semantic -->
+    <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+    <script
+      src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script src="semantic/dist/semantic.min.js"></script>
+
+    <!-- dygraphs -->
+    <script src="node_modules/dygraphs/dist/dygraph.js"></script>
+
+  <!-- Make electron behave normally again  -->
+  <script>if (window.module) module = window.module;</script>
+</head>
+
+<body>
+
+
+  <div class="ui top attached tabular menu">
+    <a class="item active" data-tab="first">First</a>
+    <a class="item" data-tab="second">Second</a>
+    <a class="item" data-tab="third">+</a>
+  </div>
+  <div class="ui bottom attached tab segment active" data-tab="first">
+    
+    <div class="ui two column doubling stackable grid container">
+      <div class="column" >
+        <div id="terminal" style="height: 90vh;"></div>
+      </div>
+      <div class="column">
+        <div id="graph_div" style="width:100%; height:80vh;"> 
+      </div>
+    </div>
+
+  </div>
+  <div class="ui bottom attached tab segment" data-tab="second">
+    Second
+  </div>
+  <div class="ui bottom attached tab segment" data-tab="third">
+    Third
+  </div>
+
+  <!-- Your application bootstrap  -->
+  <script type="text/javascript">    
+
+    $( document ).ready( function() {
+
+      Terminal.applyAddon(fit);  // Apply the `fit` addon
+
+      var term = new Terminal({
+        cursorBlink: true
+      });
+
+
+      console.log("Document is :", document);
+      console.log("terminal is :", document.getElementById('terminal'));
+      term.open(document.getElementById('terminal'));
+      term.fit();
+      term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
+      term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
+      term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
+      term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
+      term.write('\033[1;3;31m[c++]$ \033[0m')
+      console.log("terminal is :", term);
+    });
+
+   $(document).ready(function() {
+     var plot = function() {
+       var fn = function(x) { return [0.1 * x, 0.1 * x + Math.sin(x), 0.1*x + Math.cos(x)]; };
+         
+       var graph = document.getElementById("graph_div");
+       var width = parseInt(window.getComputedStyle(graph,null).getPropertyValue("width"), 10);
+       var x1 = -10;
+       var x2 = 10;
+       var xs = 1.0 * (x2 - x1) / width;
+
+       var data = [];
+       for (var i = 0; i < width; i++) {
+         var x = x1 + i * xs;
+         var y = fn(x);
+         var row = [x];
+         if (y.length > 0) {
+           for (var j = 0; j < y.length; j++) {
+             row.push(y[j]);
+           }
+         } else {
+           row.push(y);
+         }
+         data.push(row);
+       }
+
+       new Dygraph(graph, data);
+     };
+
+     plot();
+   });
+
+  </script>
+  
+  <script>
+    // You can also require other files to run in this process
+    require('./renderer.js')
+  </script>
+</body>
 </html>
