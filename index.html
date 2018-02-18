@@ -4,7 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">  
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- electron fix for jQuery --!>
+  <!-- electron fix for jQuery -->
   <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 
     <!-- xterm start -->
@@ -70,12 +70,21 @@
       console.log("terminal is :", document.getElementById('terminal'));
       term.open(document.getElementById('terminal'));
       term.fit();
+
+      term.on('keydown', function(e) {
+        console.log(e);
+      });
+
+      term.on('data', function(e) {
+        console.log(e);
+      });
       term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
       term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
       term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
       term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
       term.write('\033[1;3;31m[c++]$ \033[0m')
       console.log("terminal is :", term);
+
     });
 
    $(document).ready(function() {
@@ -109,6 +118,11 @@
      plot();
    });
 
+    $( document ).ready( function() {
+      const addon = require('./cpp/build/Release/cling_node');
+      console.log(addon.hello());
+
+    });
   </script>
   
   <script>
