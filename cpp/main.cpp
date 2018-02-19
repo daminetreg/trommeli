@@ -3,6 +3,7 @@
 #include <cling/Interpreter/Interpreter.h>
 #include <cling/UserInterface/UserInterface.h>
 #include <cling/MetaProcessor/MetaProcessor.h>
+#include <cmath>
 
 /*
 
@@ -43,6 +44,17 @@ using v8::Local;
 using v8::Object;
 using v8::String;
 using v8::Value;
+using v8::Exception;
+using v8::FunctionCallbackInfo;
+using v8::Isolate;
+using v8::Local;
+using v8::Number;
+using v8::Object;
+using v8::String;
+using v8::Value;
+using v8::Handle;
+using v8::HandleScope;
+using v8::Array;
 
 void Method(const FunctionCallbackInfo<Value>& args) {
 
@@ -67,8 +79,58 @@ void Method(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(String::NewFromUtf8(isolate, "world"));
 }
 
+Handle<Array> NewPointArray(Isolate* isolate, double x, double y, double z) {
+
+  // We will be creating temporary handles so we use a handle scope.
+  HandleScope handle_scope(isolate);
+
+  // Create a new empty array.
+  Handle<Array> array = Array::New(isolate, 3);
+
+  // Return an empty result if there was an error creating the array.
+  if (array.IsEmpty())
+    return Handle<Array>();
+
+  // Fill out the values
+  array->Set(0, Number::New(isolate, x));
+  array->Set(1, Number::New(isolate, y));
+  array->Set(2, Number::New(isolate, z));
+
+  // Return the value through Close.
+  return array;
+}
+
+void PlotFunction(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  // Check the number of arguments passed.
+  if (args.Length() < 1) {
+    // Throw an Error that is passed back to JavaScript
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong number of arguments")));
+    return;
+  }
+
+  // Check the argument types
+  if (!args[0]->IsNumber()) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+
+  // Perform the operation
+  double x = args[0]->NumberValue();
+  auto value  = NewPointArray(isolate, 0.1 * x, 0.1 * x + sin(x), 0.1*x + cos(x));
+  //Local<Number> num = Number::New(isolate, value);
+
+  // Set the return value (using the passed in
+  // FunctionCallbackInfo<Value>&)
+  args.GetReturnValue().Set(value);
+}
+
 void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "hello", Method);
+  NODE_SET_METHOD(exports, "plot_function", PlotFunction);
 }
 
 NODE_MODULE(cling_node, init)

@@ -87,9 +87,12 @@
 
     });
 
+   const addon = require('./cpp/build/Release/cling_node');
    $(document).ready(function() {
      var plot = function() {
-       var fn = function(x) { return [0.1 * x, 0.1 * x + Math.sin(x), 0.1*x + Math.cos(x)]; };
+       console.log(addon.hello());
+       var fn = addon.plot_function;
+       //function(x) { return [0.1 * x, 0.1 * x + Math.sin(x), 0.1*x + Math.cos(x)]; };
          
        var graph = document.getElementById("graph_div");
        var width = parseInt(window.getComputedStyle(graph,null).getPropertyValue("width"), 10);
@@ -118,11 +121,11 @@
      plot();
    });
 
-    $( document ).ready( function() {
+    /*$( document ).ready( function() {
       const addon = require('./cpp/build/Release/cling_node');
       console.log(addon.hello());
 
-    });
+    });*/
   </script>
   
   <script>
