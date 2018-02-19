@@ -56,12 +56,13 @@
 
   <!-- Your application bootstrap  -->
   <script type="text/javascript">    
-
+    const prompt = '\033[1;3;31m[c++]$ \033[0m';
+    const cling = require('./cpp/build/Release/cling_node');
     $( document ).ready( function() {
 
       Terminal.applyAddon(fit);  // Apply the `fit` addon
 
-      var term = new Terminal({
+      term = new Terminal({
         cursorBlink: true
       });
 
@@ -71,27 +72,48 @@
       term.open(document.getElementById('terminal'));
       term.fit();
 
+      var current_buf = "";
       term.on('keydown', function(e) {
         console.log(e);
+        if (e.key == 'Enter') {
+          var to_exec = current_buf;
+          current_buf = "";
+          cling.execute(to_exec);
+          // Move later
+          setTimeout(function() {
+            term.write("\r\n" + prompt);
+          });
+        } else if (e.key == 'Backspace') {
+          current_buf = current_buf.substr(0, current_buf.length-1);
+          term.eraseRight(term.buffer.x-1, term.buffer.y);
+          term.buffer.x--;
+          term.refresh(term.buffer.y, term.buffer.y);
+          console.log("The terminal buff :", term.buffer);
+        }
       });
 
+      const DEL = '\x7f';
       term.on('data', function(e) {
-        console.log(e);
+        if (e != DEL) {
+          console.log("data: " + e);
+          current_buf += e;
+          term.write(e)
+          console.log(current_buf);
+        }
       });
       term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
       term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
       term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
       term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
-      term.write('\033[1;3;31m[c++]$ \033[0m')
+      term.write(prompt)
       console.log("terminal is :", term);
 
     });
 
-   const addon = require('./cpp/build/Release/cling_node');
    $(document).ready(function() {
      var plot = function() {
-       console.log(addon.hello());
-       var fn = addon.plot_function;
+       //console.log(cling.hello());
+       var fn = cling.plot_function;
        //function(x) { return [0.1 * x, 0.1 * x + Math.sin(x), 0.1*x + Math.cos(x)]; };
          
        var graph = document.getElementById("graph_div");

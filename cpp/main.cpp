@@ -79,6 +79,42 @@ void Method(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(String::NewFromUtf8(isolate, "world"));
 }
 
+void ExecuteFunction(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  // Check the number of arguments passed.
+  if (args.Length() < 1) {
+    // Throw an Error that is passed back to JavaScript
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong number of arguments")));
+    return;
+  }
+
+  // Check the argument types
+  if (!args[0]->IsString()) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+
+  static int argc = 3;
+  static const char* argv[3] = {"cling", "-I", "/opt/softwares/cling_2018-02-17_ubuntu16/include/"};
+
+  // cling
+  static cling::Interpreter Interp(argc, argv);
+  //const cling::InvocationOptions& Opts = Interp.getOptions();
+  static cling::UserInterface Ui(Interp);
+
+  std::string Line (*v8::String::Utf8Value(args[0]->ToString()));
+  cling::Interpreter::CompilationResult compRes;
+  /*int indent =*/ Ui.getMetaProcessor()->process(Line, compRes);
+
+  /*indent =*/ Ui.getMetaProcessor()->process(Line, compRes);
+
+  // Node stuffs
+  //args.GetReturnValue().Set(String::NewFromUtf8(isolate, "world"));
+}
+
 Handle<Array> NewPointArray(Isolate* isolate, double x, double y, double z) {
 
   // We will be creating temporary handles so we use a handle scope.
@@ -130,6 +166,7 @@ void PlotFunction(const FunctionCallbackInfo<Value>& args) {
 
 void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "hello", Method);
+  NODE_SET_METHOD(exports, "execute", ExecuteFunction);
   NODE_SET_METHOD(exports, "plot_function", PlotFunction);
 }
 
