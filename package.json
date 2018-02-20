@@ -1,7 +1,7 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "name": "trommeli",
+  "version": "0.0.1",
+  "description": "An interactive C++ Runtime that can plot !",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
