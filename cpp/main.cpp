@@ -40,6 +40,8 @@
   '/opt/softwares/cling_2018-02-17_ubuntu16/lib/libLLVMTransformUtils.a'
 */
 
+static std::vector<double> plotted(11);
+
 namespace demo {
 
 using v8::FunctionCallbackInfo;
@@ -60,7 +62,6 @@ using v8::Handle;
 using v8::HandleScope;
 using v8::Array;
 
-std::vector<double> plotted(10);
 
 cling::Interpreter* get_interp() {
   static int argc = 2;
@@ -92,10 +93,16 @@ void prepare(const FunctionCallbackInfo<Value>& args) {
 
   Line = "#include <vector>";
   interp.process(Line);
-  interp.declare("std::vector<double> plotted;");
+  //interp.declare("static std::vector<double> plotted;");
+  Line = "std::vector<double> plotted(11);";
+  interp.process(Line);
 
   Line = "#include <algorithm>";
   interp.process(Line);
+
+  Line = " std::generate(plotted.begin(), plotted.end(), [](){return std::rand() % 43; });";
+  interp.process(Line);
+
   //Line = "std::vector< double > plotted(10);";
   //interp.process(Line, compRes);
 
@@ -126,8 +133,8 @@ void ExecuteFunction(const FunctionCallbackInfo<Value>& args) {
 
   std::string Line (*v8::String::Utf8Value(args[0]->ToString()));
   cling::Interpreter::CompilationResult compRes;
-  //cling::Value val;
-  interp.process(Line/*, &val)*/);
+  cling::Value val;
+  interp.process(Line, &val);
 
   // Node stuffs
   //args.GetReturnValue().Set(String::NewFromUtf8(isolate, "world"));
@@ -172,20 +179,19 @@ void PlotFunction(const FunctionCallbackInfo<Value>& args) {
     return;
   }
 
-  //auto& interp = *get_interp();
-  //cling::Interpreter::CompilationResult compRes;
-  //cling::Value plotted_ptr;
-  //std::string Line = "&plotted;";
-  //interp.process(Line, &plotted_ptr);
-  //auto* plotted = reinterpret_cast<std::vector<double>*>(plotted_ptr.getPtr());
+  auto& interp = *get_interp();
+  cling::Value plotted_ptr;
+  std::string Line = "&plotted;";
+  interp.process(Line, &plotted_ptr);
+  auto* plotted_ = reinterpret_cast<std::vector<double>*>(plotted_ptr.getPtr());
 
 
   // Perform the operation
-  size_t x = 1;//(size_t)args[0]->NumberValue();
+  size_t x = (size_t)args[0]->NumberValue();
   
   auto value  = NewPointArray(isolate, 
     0.1 * x,
-    plotted.at(x),
+    plotted_->at(x),
     //0.1 * x + sin(x),
     0.1*x + cos(x)
   );
@@ -196,10 +202,28 @@ void PlotFunction(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(value);
 }
 
+void PlotSize(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  auto& interp = *get_interp();
+  cling::Value plotted_ptr;
+  std::string Line = "&plotted;";
+  interp.process(Line, &plotted_ptr);
+  auto* plotted_ = reinterpret_cast<std::vector<double>*>(plotted_ptr.getPtr());
+
+
+  Local<Number> value = Number::New(isolate, plotted_->size());
+
+  // Set the return value (using the passed in
+  // FunctionCallbackInfo<Value>&)
+  args.GetReturnValue().Set(value);
+}
+
 void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "prepare", prepare);
   NODE_SET_METHOD(exports, "execute", ExecuteFunction);
   NODE_SET_METHOD(exports, "plot_function", PlotFunction);
+  NODE_SET_METHOD(exports, "plot_size", PlotSize);
 }
 
 NODE_MODULE(cling_node, init)

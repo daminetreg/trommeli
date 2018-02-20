@@ -65,9 +65,8 @@
       var fn = cling.plot_function;
         
       var graph = document.getElementById("graph_div");
-      var width = parseInt(window.getComputedStyle(graph,null).getPropertyValue("width"), 10);
+      var width = cling.plot_size();// parseInt(window.getComputedStyle(graph,null).getPropertyValue("width"), 10);
       var x1 = 0;
-      var x2 = 10;
 
       var data = [];
       for (var i = 0; i < width; i++) {
