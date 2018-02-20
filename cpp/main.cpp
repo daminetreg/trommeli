@@ -40,7 +40,7 @@
   '/opt/softwares/cling_2018-02-17_ubuntu16/lib/libLLVMTransformUtils.a'
 */
 
-static std::vector<double> plotted(11);
+static std::vector<double>* plotted_;
 
 namespace demo {
 
@@ -109,6 +109,10 @@ void prepare(const FunctionCallbackInfo<Value>& args) {
   //Line = "std::generate_n(plotted.begin(), plotted.end(), [](){ return 0; });";
   //interp.process(Line, compRes);
 
+  cling::Value plotted_ptr;
+  Line = "&plotted;";
+  interp.process(Line, &plotted_ptr);
+  plotted_ = reinterpret_cast<std::vector<double>*>(plotted_ptr.getPtr());
 }
 
 void ExecuteFunction(const FunctionCallbackInfo<Value>& args) {
@@ -178,13 +182,6 @@ void PlotFunction(const FunctionCallbackInfo<Value>& args) {
         String::NewFromUtf8(isolate, "Wrong arguments")));
     return;
   }
-
-  auto& interp = *get_interp();
-  cling::Value plotted_ptr;
-  std::string Line = "&plotted;";
-  interp.process(Line, &plotted_ptr);
-  auto* plotted_ = reinterpret_cast<std::vector<double>*>(plotted_ptr.getPtr());
-
 
   // Perform the operation
   size_t x = (size_t)args[0]->NumberValue();
