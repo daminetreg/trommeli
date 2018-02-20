@@ -55,14 +55,43 @@
   </div>
 
   <!-- Your application bootstrap  -->
-  <script type="text/javascript">    
+  <script type="text/javascript">
     const prompt = '\033[1;3;31m[c++]$ \033[0m';
     const cling = require('./cpp/build/Release/cling_node');
+    //const cling = require('./cpp/cmakebuild/libcling_node');
+    cling.prepare();
+
+    var plot = function() {
+      var fn = cling.plot_function;
+        
+      var graph = document.getElementById("graph_div");
+      var width = parseInt(window.getComputedStyle(graph,null).getPropertyValue("width"), 10);
+      var x1 = 0;
+      var x2 = 10;
+
+      var data = [];
+      for (var i = 0; i < width; i++) {
+        var x = i;
+        var y = fn(x);
+        var row = [x];
+        if (y.length > 0) {
+          for (var j = 0; j < y.length; j++) {
+            row.push(y[j]);
+          }
+        } else {
+          row.push(y);
+        }
+        data.push(row);
+      }
+
+      new Dygraph(graph, data);
+    };
+
     $( document ).ready( function() {
 
       Terminal.applyAddon(fit);  // Apply the `fit` addon
 
-      term = new Terminal({
+      var term = new Terminal({
         cursorBlink: true
       });
 
@@ -81,6 +110,7 @@
           cling.execute(to_exec);
           // Move later
           setTimeout(function() {
+            plot();
             term.write("\r\n" + prompt);
           });
         } else if (e.key == 'Backspace') {
@@ -101,45 +131,14 @@
           console.log(current_buf);
         }
       });
-      term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
-      term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
-      term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
-      term.write('Hello from \033[1;3;31mxterm.js\033[0m $ \r\n')
+      term.write('\033[1;3;31m *** \033[0m C++17 \033[1;3;31m *** \033[0m \r\n');
+      term.write('Changes to \033[1;3;31m std::vector< double > plotted  \033[0m are displayed on the chart. \r\n');
       term.write(prompt)
       console.log("terminal is :", term);
 
     });
 
    $(document).ready(function() {
-     var plot = function() {
-       //console.log(cling.hello());
-       var fn = cling.plot_function;
-       //function(x) { return [0.1 * x, 0.1 * x + Math.sin(x), 0.1*x + Math.cos(x)]; };
-         
-       var graph = document.getElementById("graph_div");
-       var width = parseInt(window.getComputedStyle(graph,null).getPropertyValue("width"), 10);
-       var x1 = -10;
-       var x2 = 10;
-       var xs = 1.0 * (x2 - x1) / width;
-
-       var data = [];
-       for (var i = 0; i < width; i++) {
-         var x = x1 + i * xs;
-         var y = fn(x);
-         var row = [x];
-         if (y.length > 0) {
-           for (var j = 0; j < y.length; j++) {
-             row.push(y[j]);
-           }
-         } else {
-           row.push(y);
-         }
-         data.push(row);
-       }
-
-       new Dygraph(graph, data);
-     };
-
      plot();
    });
 
