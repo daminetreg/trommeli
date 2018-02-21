@@ -5,6 +5,9 @@ A clever blend of cling, nodejs baked at [Basel carnival](http://www.baslerfasna
 
 ![A C++ interactive environment that can plot](trommeli.png)
 
+## Prebuilt binaries
+[Available on the releases page](https://github.com/daminetreg/trommeli/releases)
+
 ## License
 ```
 trommeli  Copyright (c) 2018 Damien Buhl (alias daminetreg)
