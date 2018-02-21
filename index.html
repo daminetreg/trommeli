@@ -146,7 +146,23 @@
     });*/
   </script>
   
+  <div class="ui labeled button" tabindex="0" id="baked_with_love">
+      <div class="ui red button">
+        <i class="heart icon"></i> Crafted with love in Basel 
+      </div>
+      <a class="ui basic red left pointing label">
+        by @daminetreg
+      </a>
+  </div>
   <script>
+    $( document ).ready(function() {
+      const shell = require('electron').shell;
+      $( "#baked_with_love" ).click(function(e) {
+           event.preventDefault();
+           shell.openExternal("https://github.com/daminetreg/trommeli");
+      });
+    });
+
     // You can also require other files to run in this process
     require('./renderer.js')
   </script>

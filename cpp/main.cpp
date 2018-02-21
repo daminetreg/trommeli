@@ -34,7 +34,7 @@ using v8::Array;
 
 cling::Interpreter* get_interp() {
   static int argc = 2;
-  static const char* argv[2] = {"cling", "-I/home/daminetreg/workspace/trommeli/cling/src/tools/cling/include/" };
+  static const char* argv[2] = {"cling", "-Iinclude" };
 
   // cling
   static cling::Interpreter Interp(argc, argv);
